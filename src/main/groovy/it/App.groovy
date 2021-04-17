@@ -4,17 +4,8 @@ import java.util.stream.Collectors
 
 class App {
 
-    static String getKernelInUse() {
-        "uname -r".execute().text.trim()
-    }
-
-    static String getKernelInUseVersion() {
-        def matcher = getKernelInUse() =~ /^(\S*?)(-generic)?$/
-        matcher.matches() ? matcher[0][1] : null
-    }
-
     static void main(String[] args) {
-        def kernelInUseVersion = getKernelInUseVersion()
+        def kernelInUseVersion = Dpkg.getKernelInUseVersion()
         println "current kernel version in use $kernelInUseVersion"
 
         def skipList = ['linux-headers-virtual',
@@ -24,10 +15,7 @@ class App {
                         'linux-image-generic',
                         'linux-headers-generic']
 
-        def out = 'dpkg --list'.execute() | 'egrep -i linux-(image|headers)'.execute()
-        out.waitFor()
-
-        List<Dpkg> packages = out.text.split('\n').toList().stream()
+        List<Dpkg> packages = Dpkg.getInstalledKernels().stream()
                 .map { new Dpkg(it) }
                 .filter {
                     it.matches() && !skipList.contains(it.getPackageName()) && it.getVersion() != kernelInUseVersion
