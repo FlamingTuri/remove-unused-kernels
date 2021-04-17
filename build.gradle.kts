@@ -3,6 +3,12 @@ plugins {
     application
 }
 
+java {
+    val javaVersion = JavaVersion.VERSION_1_8
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
+
 repositories {
     jcenter()
 }
