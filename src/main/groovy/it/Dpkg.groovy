@@ -27,7 +27,9 @@ class Dpkg {
     }
 
     static String getKernelInUse() {
-        "uname -r".execute().text.trim()
+        def out = "uname -r".execute()
+        out.waitFor()
+        out.text.trim()
     }
 
     static String getKernelInUseVersion(String kernelInUse = getKernelInUse()) {
