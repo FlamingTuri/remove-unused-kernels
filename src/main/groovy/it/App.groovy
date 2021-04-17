@@ -5,6 +5,21 @@ import java.util.stream.Collectors
 class App {
 
     static void main(String[] args) {
+        def printErr = System.err.&println
+        int numberOfVersionsToKeep = 2
+        if (args.size() > 0) {
+            try {
+                numberOfVersionsToKeep = args[0].toInteger()
+            } catch (NumberFormatException ignore) {
+                printErr("the number of kernel versions to keep outside of the one in use must be an int number")
+                System.exit(-1)
+            }
+            if (numberOfVersionsToKeep < 0) {
+                printErr("the number of kernel versions to keep outside of the one in use must be >= 0")
+                System.exit(-1)
+            }
+        }
+
         def kernelInUseVersion = Dpkg.getKernelInUseVersion()
         println "current kernel version in use $kernelInUseVersion"
 
@@ -26,7 +41,7 @@ class App {
                 .map { it.getVersion() }
                 .distinct()
                 .sorted(Comparator.reverseOrder())
-                .limit(2)
+                .limit(numberOfVersionsToKeep)
                 .collect(Collectors.toList())
 
         def getText = { String text -> versionsToKeep.isEmpty() ? '' : text }
